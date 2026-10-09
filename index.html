@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Program Riset Konsorsium Unggulan Berdampak</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header><div class="brand"><img src="logo.png" alt="Logo RIKUB"><div><h1>Program Riset Konsorsium Unggulan Berdampak</h1><small>DIREKTORAT PENELITIAN DAN PENGABDIAN KEPADA MASYARAKAT</small></div></div><small id="src"></small></header>
+<div class="ttl">DASHBOARD EKSEKUTIF</div>
+
+<div class="bar" style="margin-top:0">
+<label>Tahun<select id="fY"></select></label>
+<label>Bidang Fokus<select id="fB"></select></label>
+<label>Tipe Institusi<select id="fT"></select></label>
+<label>Provinsi<select id="fP"></select></label>
+<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="rst">Reset</button>
+<input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+</div>
+
+<div class="kpis">
+<div class="card kpi"><div class="l">Total Anggaran Disalurkan</div><div class="v" id="k1"></div><div class="s" id="k1s"></div></div>
+<div class="card kpi"><div class="l">Total Konsorsium / Judul</div><div class="v" id="k2"></div><div class="s" id="k2s"></div></div>
+<div class="card kpi"><div class="l">Perguruan Tinggi Mitra</div><div class="v" id="k3"></div><div class="s">institusi ketua unik</div></div>
+<div class="card kpi"><div class="l">Skema Multi-Years</div><div class="v" id="k4"></div><div class="s" id="k4s"></div></div>
+</div>
+
+<div class="grid">
+<div class="card"><h2>Fokus Riset per Bidang</h2><div class="tg" id="tg"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div><div id="cB"></div></div>
+<div class="card"><h2>Status Institusi (porsi dana)</h2><div class="donut"><div class="ring" id="ring"></div><div class="lg" id="lg"></div></div></div>
+<div class="card"><h2>Top 5 Provinsi Institusi Ketua</h2><div id="cP"></div></div>
+</div>
+
+<div class="card"><h2>Top 5 Riset dengan Pendanaan Terbesar</h2><div class="tw"><table><thead><tr><th>#</th><th>Nama Ketua</th><th>Nama Institusi</th><th>Bidang Fokus</th><th>Tahun</th><th class="r">Pendanaan</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+<p class="note" id="note"></p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
