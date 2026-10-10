@@ -17,7 +17,7 @@
 <label>Bidang Fokus<select id="fB"></select></label>
 <label>Tipe Institusi<select id="fT"></select></label>
 <label>Provinsi<select id="fP"></select></label>
-<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="rst">Reset</button>
+<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="clr" hidden>Hapus Data Tersimpan</button>
 <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
 </div>
 
@@ -29,12 +29,12 @@
 </div>
 
 <div class="grid">
-<div class="card"><h2>Fokus Riset per Bidang</h2><div class="tg" id="tg"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div><div id="cB"></div></div>
-<div class="card"><h2>Status Institusi (porsi dana)</h2><div class="donut"><div class="ring" id="ring"></div><div class="lg" id="lg"></div></div></div>
-<div class="card"><h2>Top 5 Provinsi Institusi Ketua</h2><div id="cP"></div></div>
+<div class="card"><h2>Fokus Riset per Bidang</h2><div class="tg" data-c="B"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div><div id="cB"></div></div>
+<div class="card"><h2 id="hT">Status Institusi (porsi jumlah judul)</h2><div class="tg" data-c="T"><button data-m="dana">Dana</button><button data-m="n" class="on">Jumlah Judul</button></div><div class="donut"><div class="ring" id="ring"></div><div class="lg" id="lg"></div></div></div>
+<div class="card"><h2>Top 5 Provinsi Institusi Ketua</h2><div class="tg" data-c="P"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div><div id="cP"></div></div>
 </div>
 
-<div class="card"><h2>Top 5 Riset dengan Pendanaan Terbesar</h2><div class="tw"><table><thead><tr><th>#</th><th>Nama Ketua</th><th>Nama Institusi</th><th>Bidang Fokus</th><th>Tahun</th><th class="r">Pendanaan</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+<div class="card"><h2>Top 10 Riset dengan Pendanaan Terbesar<span id="cnt"></span></h2><div class="tw"><table><thead><tr><th>#</th><th>Nama Ketua</th><th>Nama Institusi</th><th>Bidang Fokus</th><th>Tahun</th><th class="r">Pendanaan</th></tr></thead><tbody id="tb"></tbody></table></div></div>
 <p class="note" id="note"></p>
 </div>
 
