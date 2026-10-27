@@ -54,3 +54,7 @@ dialog input{font:inherit;padding:8px;border:1px solid var(--line);border-radius
 .tip{position:absolute;pointer-events:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:3;white-space:nowrap}
 .mleg{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mute);margin-top:6px}
 .lbar{width:220px;height:10px;border-radius:5px;background:linear-gradient(90deg,#bed7f0,#1b3a72)}
+.banner{background:#fff4d6;color:#5a3d00;border:1px solid #e8a23a;border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:13px;font-weight:600}
+#rdlg{width:min(640px,94vw)}#rbody{max-height:62vh;overflow:auto;font-size:13px;margin-bottom:12px}
+.rt{width:100%;border-collapse:collapse}.rt td,.rt th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:12px;vertical-align:top}
+.ok{color:#1a7f4b}.warn{color:#b26a00}.bad{color:#c0392b}#rbody h3{font-size:13px;margin:12px 0 4px}

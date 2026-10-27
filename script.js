@@ -35,14 +35,62 @@ function mapSheet(rows,year){
 }
 function loadFile(f){
   const rd=new FileReader();
-  rd.onload=e=>{try{
-    const wb=XLSX.read(e.target.result,{type:"array"});let all=[],log=[];
-    wb.SheetNames.forEach(n=>{const y=(n.match(/20\d\d/)||[])[0];if(!y&&wb.SheetNames.length>1)return;
-      all=all.concat(mapSheet(XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:""}),+y||2025));log.push(n+" → "+Object.entries(LASTMAP).map(([k,v])=>k+": "+v).join(" | "))});
-    if(!all.length)throw 0;DATA=all;demo=false;META={name:f.name,time:Date.now(),map:log.join("\n")};persist().then(ok=>{if(ok!==false)return init();loadSaved().then(h=>{if(!h){DATA=sample();META=null;demo=true}init()})});
-  }catch(x){alert("File tidak terbaca. Pastikan ada sheet bernama 2025 dan/atau 2026 dengan baris header di baris pertama.")}};
+  rd.onload=async e=>{let all=[],info=[];
+    try{const wb=XLSX.read(e.target.result,{type:"array"});
+      wb.SheetNames.forEach(n=>{const y=(n.match(/20\d\d/)||[])[0];if(!y&&wb.SheetNames.length>1)return;
+        const rows=XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:""}),m=mapSheet(rows,+y||2025);
+        all=all.concat(m);info.push({n,raw:rows.length,ok:m.length,map:{...LASTMAP}})});
+      if(!all.length)throw 0}
+    catch(x){alert("File tidak terbaca. Pastikan ada sheet bernama 2025 dan/atau 2026 dengan baris header di baris pertama.");$("file").value="";return}
+    const go=await showDlg("Laporan Hasil Impor",reportHtml(f.name,all,info),"Simpan & Ganti Data","Batal");
+    $("file").value="";if(!go)return;
+    DATA=all;demo=false;LOADERR="";META={name:f.name,time:Date.now(),map:info.map(i=>i.n+" → "+Object.entries(i.map).map(([k,v])=>k+": "+v).join(" | ")).join("\n")};
+    persist().then(ok=>{if(ok!==false)return init();loadSaved().then(h=>{if(!h){DATA=sample();META=null;demo=true}init()})});
+  };
   rd.readAsArrayBuffer(f);
 }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function showDlg(title,html,okT,noT){return new Promise(res=>{const d=$("rdlg");$("rtitle").textContent=title;$("rbody").innerHTML=html;
+  $("rok").textContent=okT||"OK";$("rno").hidden=!noT;if(noT)$("rno").textContent=noT;
+  const done=v=>{d.close();res(v)};$("rok").onclick=()=>done(true);$("rno").onclick=()=>done(false);d.oncancel=()=>res(false);d.showModal()})}
+function reportHtml(name,all,info){
+  const yrs={};all.forEach(r=>yrs[r.tahun]=(yrs[r.tahun]||0)+1);const tot=all.reduce((a,b)=>a+b.dana,0);
+  const L={ketua:"Nama Ketua",inst:"Institusi",prov:"Provinsi",tipe:"Status Institusi",bidang:"Bidang Fokus",dana:"Dana",multi:"Multi/Single Years"};
+  let h=`<p><b>${esc(name)}</b><br>${all.length} baris terbaca (${Object.entries(yrs).map(([y,n])=>y+": "+n).join(" · ")}) · total dana ${rp(tot)}</p><h3>Kolom Excel yang terbaca</h3><table class="rt"><tr><th>Isian</th>${info.map(i=>"<th>Sheet "+esc(i.n)+"</th>").join("")}</tr>`;
+  Object.entries(L).forEach(([k,t])=>{h+=`<tr><td>${t}</td>${info.map(i=>i.map[k]?`<td class="ok">✔ ${esc(i.map[k])}</td>`:`<td class="bad">✖ tidak ditemukan</td>`).join("")}</tr>`});
+  h+="</table><h3>Pemeriksaan data</h3><table class='rt'>";
+  const chk=(n,t)=>{h+=`<tr><td class="${n?"warn":"ok"}">${n?"⚠":"✔"}</td><td>${n?n+" baris ":"Tidak ada baris "}${t}</td></tr>`};
+  chk(all.filter(r=>r.prov==="-"||!r.prov).length,"tanpa provinsi");chk(all.filter(r=>r.ketua==="-").length,"tanpa nama ketua");
+  chk(all.filter(r=>r.tipe!=="PTN"&&r.tipe!=="PTS").length,"dengan status institusi bukan PTN/PTS");chk(all.filter(r=>r.bidang==="Lainnya").length,"tanpa bidang fokus");chk(all.filter(r=>!(r.dana>0)).length,"dengan dana 0");
+  const keys=new Set(((window.RIKUB_MAP||{}).prov||[]).map(p=>p.k)),tak=[...new Set(all.map(r=>r.prov).filter(p=>p&&p!=="-"&&!keys.has(pkey(p))))];
+  if(keys.size)h+=`<tr><td class="${tak.length?"warn":"ok"}">${tak.length?"⚠":"✔"}</td><td>${tak.length?"Provinsi tidak ada di peta: "+esc(tak.join(", ")):"Semua provinsi dikenali oleh peta"}</td></tr>`;
+  info.forEach(i=>{if(i.raw!==i.ok)h+=`<tr><td class="warn">⚠</td><td>Sheet ${esc(i.n)}: ${i.raw-i.ok} baris kosong dilewati</td></tr>`});
+  h+="</table><h3>Dibanding data yang sekarang tampil</h3>";
+  if(demo)h+="<p>Belum ada data asli tersimpan (saat ini data contoh). Data ini akan menjadi data utama dashboard.</p>";
+  else{const old={};DATA.forEach(r=>old[r.tahun]=(old[r.tahun]||0)+1);const lost=Object.keys(old).filter(y=>!yrs[y]);
+    h+=`<p>Sekarang: ${DATA.length} baris (${Object.entries(old).map(([y,n])=>y+": "+n).join(" · ")}) → menjadi ${all.length} baris.</p>`+(lost.length?`<p class="bad"><b>Perhatian:</b> data tahun ${lost.join(", ")} akan HILANG karena tidak ada di file ini.</p>`:"")+"<p>Data lama akan diganti seluruhnya.</p>"}
+  return h}
+async function runCheck(){
+  const L=[],add=(st,t,hint)=>L.push(`<tr><td class="${st===1?"ok":st===0?"bad":"warn"}">${st===1?"✔":st===0?"✖":"–"}</td><td>${t}${hint&&st!==1?"<br><small>"+hint+"</small>":""}</td></tr>`);
+  add(CFG.SUPABASE_URL&&CFG.SUPABASE_ANON_KEY?1:0,"config.js berisi URL dan anon key Supabase","Isi SUPABASE_URL dan SUPABASE_ANON_KEY di config.js.");
+  add(CFG.ADMIN_EMAIL?1:0,"ADMIN_EMAIL terisi di config.js","Isi dengan email akun admin PIN.");
+  add(window.supabase?1:0,"Library Supabase termuat","Periksa koneksi internet atau pemblokiran CDN.");
+  if(SB){
+    try{const {data,error}=await SB.from("rikub_snapshot").select("id,updated_at").eq("id",1).maybeSingle();
+      if(error)add(0,"Membaca data dari server","Pesan: "+esc(error.message)+". Jalankan supabase-setup.sql di Supabase.");
+      else add(1,data?"Membaca data dari server (data tersimpan ada)":"Membaca data dari server (tabel terhubung, belum ada data tersimpan)")}catch(x){add(0,"Membaca data dari server","Gagal terhubung: "+esc(x.message||x))}
+    let ses=null;try{ses=(await SB.auth.getSession()).data.session}catch(x){}
+    add(ses?1:2,"Sudah login","Klik Login Admin dan masukkan PIN.");
+    if(ses){add(ADMIN?1:0,"Akun terdaftar di tabel admins","Jalankan supabase-pin.sql lalu coba login lagi.");
+      if(ADMIN&&!demo){const {error}=await SB.from("rikub_snapshot").upsert({id:1,meta:META,data:DATA,updated_at:new Date().toISOString()});add(error?0:1,"Menyimpan data ke server (uji tulis)",error?esc(error.message):"")}
+      else if(ADMIN)add(2,"Uji tulis dilewati","Belum ada data asli; lakukan impor pertama untuk mengujinya.")}
+  }else add(2,"Mode tanpa Supabase","Data hanya tersimpan di browser ini.");
+  await showDlg("Cek Koneksi",`<table class="rt">${L.join("")}</table>`,"Tutup")}
+let LOADERR="";
+function banner(){const b=$("banner");
+  if(LOADERR){b.textContent="⚠ Gagal memuat data dari server ("+LOADERR+"). Yang tampil sekarang adalah DATA CONTOH, bukan data asli.";b.hidden=false}
+  else if(demo){b.textContent="DATA CONTOH — angka yang tampil bukan data asli. "+(SB?"Admin: login lalu impor file Excel.":"Impor file Excel untuk menampilkan data asli.");b.hidden=false}
+  else b.hidden=true}
 
 /* ---------- Filter & render ---------- */
 const F={fY:"Semua",fB:"Semua",fT:"Semua",fP:"Semua"},FK={fY:"tahun",fB:"bidang",fT:"tipe",fP:"prov"};
@@ -51,7 +99,7 @@ function init(){
   F.fY=F.fB=F.fT=F.fP="Semua";
   const u=k=>[...new Set(DATA.map(d=>d[k]))].sort();
   fill("fY",u("tahun"));fill("fB",u("bidang"));fill("fT",u("tipe"));fill("fP",u("prov"));
-  $("src").textContent=demo?"":META?"Data tersimpan: "+META.name+" · "+new Date(META.time).toLocaleString("id-ID"):"Sumber: file Excel yang diimpor";$("src").title=META?META.map:"";ui();render();
+  $("src").textContent=demo?"":META?"Data tersimpan: "+META.name+" · "+new Date(META.time).toLocaleString("id-ID"):"Sumber: file Excel yang diimpor";$("src").title=META?META.map:"";ui();banner();render();
 }
 function agg(rows,k,fn){const m={};rows.forEach(r=>{m[r[k]]=(m[r[k]]||0)+fn(r)});return Object.entries(m).sort((a,b)=>b[1]-a[1])}
 function bars(el,list,fmt){const mx=Math.max(1,...list.map(x=>x[1]));
@@ -114,7 +162,7 @@ function drawMap(R){
 const KEY="rikub:data:v1",CFG=window.RIKUB_CFG||{},
 SB=(CFG.SUPABASE_URL&&CFG.SUPABASE_ANON_KEY&&window.supabase)?window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON_KEY):null;
 let ADMIN=false;
-function ui(){$("imp").hidden=!!SB&&!ADMIN;$("login").hidden=!SB||ADMIN;$("logout").hidden=!SB||!ADMIN;$("clr").hidden=!(META&&(!SB||ADMIN))}
+function ui(){$("imp").hidden=!!SB&&!ADMIN;$("login").hidden=!SB||ADMIN;$("logout").hidden=!SB||!ADMIN;$("clr").hidden=!(META&&(!SB||ADMIN));$("cek").hidden=!SB||!ADMIN}
 async function persist(){
   if(SB){const {error}=await SB.from("rikub_snapshot").upsert({id:1,meta:META,data:DATA,updated_at:new Date().toISOString()});
     if(error){alert("Data gagal disimpan ke server. Pastikan Anda login sebagai admin yang terdaftar.\n"+error.message);return false}return true}
@@ -122,10 +170,11 @@ async function persist(){
 async function loadSaved(){
   try{
     if(SB){const {data,error}=await SB.from("rikub_snapshot").select("meta,data").eq("id",1).maybeSingle();
-      if(!error&&data&&data.data&&data.data.length){DATA=data.data;META=data.meta;demo=false;return true}return false}
+      if(error)LOADERR=error.message;if(!error&&data&&data.data&&data.data.length){DATA=data.data;META=data.meta;demo=false;return true}return false}
     const o=JSON.parse(localStorage.getItem(KEY)||"null");if(o&&o.data&&o.data.length){DATA=o.data;META=o.meta;demo=false;return true}
-  }catch(x){}return false}
+  }catch(x){LOADERR=String(x.message||x)}return false}
 async function checkAdmin(){ADMIN=false;if(SB){try{const {data:{session}}=await SB.auth.getSession();if(session){const {data}=await SB.from("admins").select("email").limit(1);ADMIN=!!(data&&data.length)}}catch(x){}}ui()}
+$("cek").onclick=runCheck;$("lcek").onclick=runCheck;
 $("clr").onclick=async()=>{if(!confirm("Hapus data yang tersimpan dan kembali ke data contoh?"))return;
   if(SB){const {data,error}=await SB.from("rikub_snapshot").delete().eq("id",1).select();if(error||!data||!data.length){alert("Gagal menghapus. Pastikan Anda login sebagai admin yang terdaftar.");return}}
   else{try{localStorage.removeItem(KEY)}catch(x){}}

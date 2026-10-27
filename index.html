@@ -11,13 +11,14 @@
 <div class="wrap">
 <header><div class="brand"><img src="logo.png" alt="Logo RIKUB"><div><h1>Program Riset Konsorsium Unggulan Berdampak</h1><small>DIREKTORAT PENELITIAN DAN PENGABDIAN KEPADA MASYARAKAT</small></div></div><small id="src"></small></header>
 <div class="ttl">DASHBOARD EKSEKUTIF</div>
+<div class="banner" id="banner" hidden></div>
 
 <div class="bar" style="margin-top:0">
 <label>Tahun<select id="fY"></select></label>
 <label>Bidang Fokus<select id="fB"></select></label>
 <label>Tipe Institusi<select id="fT"></select></label>
 <label>Provinsi<select id="fP"></select></label>
-<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="clr" hidden>Hapus Data Tersimpan</button><button id="login" hidden>Login Admin</button><button id="logout" hidden>Logout</button>
+<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="clr" hidden>Hapus Data Tersimpan</button><button id="login" hidden>Login Admin</button><button id="logout" hidden>Logout</button><button id="cek" hidden>Cek Koneksi</button>
 <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
 </div>
 
@@ -57,8 +58,9 @@
 <dialog id="dlg"><form id="lf"><h2>Masukkan PIN Admin</h2>
 <label>PIN<input id="pw" type="password" inputmode="numeric" autocomplete="off" required minlength="6" placeholder="••••••"></label>
 <p class="note" id="lerr"></p>
-<div class="dact"><button type="button" id="lcancel">Batal</button><button type="submit" class="p">Masuk</button></div>
+<div class="dact"><button type="button" id="lcek">Cek koneksi</button><button type="button" id="lcancel">Batal</button><button type="submit" class="p">Masuk</button></div>
 </form></dialog>
+<dialog id="rdlg"><h2 id="rtitle"></h2><div id="rbody"></div><div class="dact"><button type="button" id="rno">Batal</button><button type="button" id="rok" class="p">OK</button></div></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="peta-indonesia.js"></script>
