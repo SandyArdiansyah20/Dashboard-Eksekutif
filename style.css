@@ -35,3 +35,22 @@ td.r,th.r{text-align:right}.tag{font-size:11px;background:var(--bg);padding:2px 
 .note{font-size:12px;color:var(--mute);margin-top:8px}.empty{color:var(--mute);padding:20px;text-align:center}
 .tg{display:flex;gap:4px;margin-bottom:8px}.tg button{padding:3px 10px;font-size:12px}.tg .on{background:var(--navy);color:#fff}
 .tw{overflow-x:auto}
+
+dialog{border:1px solid var(--line);border-radius:12px;padding:20px;background:var(--card);color:var(--ink);width:min(360px,92vw)}
+dialog::backdrop{background:rgba(15,22,38,.5)}
+dialog label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute);margin-bottom:10px}
+dialog input{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.dact{display:flex;justify-content:flex-end;gap:8px}
+
+.menu{display:flex;gap:4px;border-bottom:2px solid var(--line);margin:4px 0 14px;overflow-x:auto}
+.menu button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;color:var(--mute);padding:10px 16px;margin-bottom:-2px;white-space:nowrap}
+.menu button.on{color:var(--navy);border-bottom-color:var(--navy)}
+.pane{display:none}.pane.on{display:block}
+
+.mapwrap{position:relative}
+#peta{width:100%;height:auto;max-height:600px;display:block}
+#peta path{stroke:var(--card);stroke-width:.7;stroke-linejoin:round}
+#peta path:hover{stroke:#e8a23a;stroke-width:1.8}
+.tip{position:absolute;pointer-events:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:3;white-space:nowrap}
+.mleg{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--mute);margin-top:6px}
+.lbar{width:220px;height:10px;border-radius:5px;background:linear-gradient(90deg,#bed7f0,#1b3a72)}

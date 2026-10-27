@@ -17,27 +17,51 @@
 <label>Bidang Fokus<select id="fB"></select></label>
 <label>Tipe Institusi<select id="fT"></select></label>
 <label>Provinsi<select id="fP"></select></label>
-<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="clr" hidden>Hapus Data Tersimpan</button>
+<button class="p" id="imp">Impor Excel</button><button id="exp">Ekspor CSV</button><button id="clr" hidden>Hapus Data Tersimpan</button><button id="login" hidden>Login Admin</button><button id="logout" hidden>Logout</button>
 <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
 </div>
 
+<div class="menu" id="menu"><button data-t="a" class="on">Ringkasan</button><button data-t="b">Sebaran</button><button data-t="c">Top 10 Riset</button><button data-t="d">Peta Wilayah</button></div>
+
+<section class="pane on" data-t="a">
 <div class="kpis">
 <div class="card kpi"><div class="l">Total Anggaran Disalurkan</div><div class="v" id="k1"></div><div class="s" id="k1s"></div></div>
 <div class="card kpi"><div class="l">Total Konsorsium / Judul</div><div class="v" id="k2"></div><div class="s" id="k2s"></div></div>
 <div class="card kpi"><div class="l">Perguruan Tinggi Mitra</div><div class="v" id="k3"></div><div class="s">institusi ketua unik</div></div>
 <div class="card kpi"><div class="l">Skema Multi-Years</div><div class="v" id="k4"></div><div class="s" id="k4s"></div></div>
 </div>
+</section>
 
+<section class="pane" data-t="b">
 <div class="grid">
 <div class="card"><h2>Fokus Riset per Bidang</h2><div class="tg" data-c="B"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div><div id="cB"></div></div>
 <div class="card"><h2 id="hT">Status Institusi (porsi jumlah judul)</h2><div class="tg" data-c="T"><button data-m="dana">Dana</button><button data-m="n" class="on">Jumlah Judul</button></div><div class="donut"><div class="ring" id="ring"></div><div class="lg" id="lg"></div></div></div>
 <div class="card"><h2>Top 5 Provinsi Institusi Ketua</h2><div class="tg" data-c="P"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div><div id="cP"></div></div>
 </div>
+</section>
 
+<section class="pane" data-t="c">
 <div class="card"><h2>Top 10 Riset dengan Pendanaan Terbesar<span id="cnt"></span></h2><div class="tw"><table><thead><tr><th>#</th><th>Nama Ketua</th><th>Nama Institusi</th><th>Bidang Fokus</th><th>Tahun</th><th class="r">Pendanaan</th></tr></thead><tbody id="tb"></tbody></table></div></div>
 <p class="note" id="note"></p>
+</section>
+
+<section class="pane" data-t="d">
+<div class="card"><h2>Peta Sebaran per Provinsi (Institusi Ketua Konsorsium)</h2>
+<div class="tg" data-c="M"><button data-m="dana" class="on">Dana</button><button data-m="n">Jumlah Judul</button></div>
+<div class="mapwrap"><svg id="peta" viewBox="0 0 1000 375" role="img" aria-label="Peta Indonesia per provinsi"></svg><div id="tip" class="tip" hidden></div></div>
+<div class="mleg"><span id="lmin"></span><div class="lbar"></div><span id="lmax"></span></div>
+<p class="note" id="mnote"></p></div>
+</section>
 </div>
 
+<dialog id="dlg"><form id="lf"><h2>Masukkan PIN Admin</h2>
+<label>PIN<input id="pw" type="password" inputmode="numeric" autocomplete="off" required minlength="6" placeholder="••••••"></label>
+<p class="note" id="lerr"></p>
+<div class="dact"><button type="button" id="lcancel">Batal</button><button type="submit" class="p">Masuk</button></div>
+</form></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="peta-indonesia.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
